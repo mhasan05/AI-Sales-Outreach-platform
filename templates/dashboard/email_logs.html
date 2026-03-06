@@ -1,0 +1,59 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}Email Logs{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Email Logs</h2>
+    <p class="text-muted mb-0">Track sent and failed emails.</p>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+                <thead>
+                    <tr>
+                        <th>To</th>
+                        <th>Subject</th>
+                        <th>Status</th>
+                        <th>Campaign</th>
+                        <th>Sent At</th>
+                    </tr>
+                </thead>
+                <tbody id="emailLogTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    redirectIfNoToken();
+
+    async function loadEmailLogs() {
+        const res = await fetch("/api/mailer/logs/", {headers: authHeaders()});
+        const result = await res.json();
+        const tbody = document.getElementById("emailLogTableBody");
+        tbody.innerHTML = "";
+
+        if (res.ok && result.data.length) {
+            result.data.forEach(item => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${item.to_email}</td>
+                        <td>${item.subject}</td>
+                        <td>${item.status}</td>
+                        <td>${item.campaign_name || ""}</td>
+                        <td>${item.sent_at || ""}</td>
+                    </tr>
+                `;
+            });
+        } else {
+            tbody.innerHTML = `<tr><td colspan="5">No email logs found.</td></tr>`;
+        }
+    }
+
+    loadEmailLogs();
+</script>
+{% endblock %}

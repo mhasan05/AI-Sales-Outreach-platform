@@ -1,0 +1,143 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Dashboard</h2>
+    <p class="text-muted mb-0">Overview of your AI sales outreach platform.</p>
+</div>
+
+<div class="row g-3 mb-4" id="statsRow">
+    <div class="col-md-3">
+        <div class="card stat-card"><div class="card-body"><small>Total Leads</small><h3 id="totalLeads">0</h3></div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card"><div class="card-body"><small>Total Campaigns</small><h3 id="totalCampaigns">0</h3></div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card"><div class="card-body"><small>Sent Emails</small><h3 id="totalSentEmails">0</h3></div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card"><div class="card-body"><small>Interested Leads</small><h3 id="interestedLeads">0</h3></div></div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-header">Recent Activity</div>
+            <div class="card-body">
+                <ul class="list-group" id="recentActivityList"></ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <div class="card mb-3">
+            <div class="card-header">Email Status</div>
+            <div class="card-body" id="emailStatusBox"></div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">Campaign Performance</div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm" id="campaignPerformanceTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Leads</th>
+                                <th>Sent</th>
+                                <th>Interested</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    redirectIfNoToken();
+
+    async function loadDashboardSummary() {
+        const res = await fetch("/api/analytics/dashboard-summary/", {headers: authHeaders()});
+        const data = await res.json();
+        if (res.ok) {
+            document.getElementById("totalLeads").innerText = data.data.total_leads;
+            document.getElementById("totalCampaigns").innerText = data.data.total_campaigns;
+            document.getElementById("totalSentEmails").innerText = data.data.total_sent_emails;
+            document.getElementById("interestedLeads").innerText = data.data.interested_leads;
+        }
+    }
+
+    async function loadRecentActivity() {
+        const res = await fetch("/api/analytics/recent-activity/?limit=8", {headers: authHeaders()});
+        const data = await res.json();
+        const list = document.getElementById("recentActivityList");
+        list.innerHTML = "";
+
+        if (res.ok && data.data.length) {
+            data.data.forEach(item => {
+                list.innerHTML += `
+                    <li class="list-group-item">
+                        <strong>${item.title}</strong><br>
+                        <small>${item.description}</small>
+                    </li>
+                `;
+            });
+        } else {
+            list.innerHTML = `<li class="list-group-item">No recent activity found.</li>`;
+        }
+    }
+
+    async function loadEmailBreakdown() {
+        const res = await fetch("/api/analytics/email-status-breakdown/", {headers: authHeaders()});
+        const data = await res.json();
+        const box = document.getElementById("emailStatusBox");
+        box.innerHTML = "";
+
+        if (res.ok && data.data.length) {
+            data.data.forEach(item => {
+                box.innerHTML += `<div class="d-flex justify-content-between border-bottom py-2">
+                    <span>${item.status}</span>
+                    <strong>${item.count}</strong>
+                </div>`;
+            });
+        } else {
+            box.innerHTML = "<p class='mb-0'>No email data found.</p>";
+        }
+    }
+
+    async function loadCampaignPerformance() {
+        const res = await fetch("/api/analytics/campaign-performance/", {headers: authHeaders()});
+        const data = await res.json();
+        const tbody = document.querySelector("#campaignPerformanceTable tbody");
+        tbody.innerHTML = "";
+
+        if (res.ok && data.data.length) {
+            data.data.forEach(item => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${item.campaign_name}</td>
+                        <td>${item.total_assigned_leads}</td>
+                        <td>${item.sent_emails}</td>
+                        <td>${item.interested}</td>
+                    </tr>
+                `;
+            });
+        } else {
+            tbody.innerHTML = `<tr><td colspan="4">No campaign data found.</td></tr>`;
+        }
+    }
+
+    loadDashboardSummary();
+    loadRecentActivity();
+    loadEmailBreakdown();
+    loadCampaignPerformance();
+</script>
+{% endblock %}

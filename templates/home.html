@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="p-5 mb-4 bg-light rounded-3">
+    <div class="container-fluid py-4">
+        <h1 class="display-6 fw-bold">AI Sales Outreach Platform</h1>
+        <p class="col-md-8 fs-5">
+            MVP foundation built with Django, DRF APIView, MySQL, and Bootstrap.
+        </p>
+
+        <hr>
+
+        <h5>Auth APIs</h5>
+        <ul>
+            <li>POST /api/auth/register/</li>
+            <li>POST /api/auth/login/</li>
+            <li>POST /api/auth/logout/</li>
+            <li>GET /api/auth/profile/</li>
+        </ul>
+
+        <h5>Workspace APIs</h5>
+        <ul>
+            <li>POST /api/workspace/create/</li>
+            <li>GET /api/workspace/detail/</li>
+            <li>PUT /api/workspace/update/</li>
+            <li>PATCH /api/workspace/update/</li>
+        </ul>
+
+        <h5>Lead APIs</h5>
+        <ul>
+            <li>POST /api/leads/create/</li>
+            <li>GET /api/leads/list/</li>
+            <li>GET /api/leads/detail/&lt;id&gt;/</li>
+            <li>PUT /api/leads/update/&lt;id&gt;/</li>
+            <li>PATCH /api/leads/update/&lt;id&gt;/</li>
+            <li>DELETE /api/leads/delete/&lt;id&gt;/</li>
+            <li>POST /api/leads/import-csv/</li>
+        </ul>
+
+        <h5>Campaign APIs</h5>
+        <ul>
+            <li>POST /api/campaigns/create/</li>
+            <li>GET /api/campaigns/list/</li>
+            <li>GET /api/campaigns/detail/&lt;id&gt;/</li>
+            <li>PUT /api/campaigns/update/&lt;id&gt;/</li>
+            <li>PATCH /api/campaigns/update/&lt;id&gt;/</li>
+            <li>DELETE /api/campaigns/delete/&lt;id&gt;/</li>
+            <li>POST /api/campaigns/&lt;id&gt;/assign-leads/</li>
+            <li>GET /api/campaigns/&lt;id&gt;/leads/</li>
+            <li>PATCH /api/campaigns/&lt;id&gt;/leads/&lt;campaign_lead_id&gt;/update/</li>
+            <li>DELETE /api/campaigns/&lt;id&gt;/leads/&lt;campaign_lead_id&gt;/delete/</li>
+            <li>POST /api/campaigns/&lt;id&gt;/steps/create/</li>
+            <li>GET /api/campaigns/&lt;id&gt;/steps/</li>
+            <li>PATCH /api/campaigns/&lt;id&gt;/steps/&lt;step_id&gt;/update/</li>
+            <li>DELETE /api/campaigns/&lt;id&gt;/steps/&lt;step_id&gt;/delete/</li>
+        </ul>
+
+        <h5>AI APIs</h5>
+        <ul>
+            <li>POST /api/ai/provider-setting/</li>
+            <li>GET /api/ai/provider-setting/</li>
+            <li>PUT /api/ai/provider-setting/</li>
+            <li>PATCH /api/ai/provider-setting/</li>
+            <li>POST /api/ai/generate/</li>
+            <li>GET /api/ai/messages/</li>
+            <li>GET /api/ai/messages/&lt;id&gt;/</li>
+        </ul>
+
+        <h5>Mailer APIs</h5>
+        <ul>
+            <li>POST /api/mailer/smtp-setting/</li>
+            <li>GET /api/mailer/smtp-setting/</li>
+            <li>PUT /api/mailer/smtp-setting/</li>
+            <li>PATCH /api/mailer/smtp-setting/</li>
+            <li>POST /api/mailer/send-test-email/</li>
+            <li>POST /api/mailer/send-campaign-email/</li>
+            <li>GET /api/mailer/logs/</li>
+            <li>GET /api/mailer/logs/&lt;id&gt;/</li>
+        </ul>
+        <h5>Analytics APIs</h5>
+        <ul>
+            <li>GET /api/analytics/dashboard-summary/</li>
+            <li>GET /api/analytics/recent-activity/</li>
+            <li>GET /api/analytics/campaign-performance/</li>
+            <li>GET /api/analytics/lead-status-breakdown/</li>
+            <li>GET /api/analytics/campaign-lead-status-breakdown/</li>
+            <li>GET /api/analytics/email-status-breakdown/</li>
+        </ul>
+
+        <h5>Frontend Pages</h5>
+        <ul>
+            <li><a href="/dashboard/login/">/dashboard/login/</a></li>
+            <li><a href="/dashboard/register/">/dashboard/register/</a></li>
+            <li><a href="/dashboard/">/dashboard/</a></li>
+            <li><a href="/dashboard/workspace/">/dashboard/workspace/</a></li>
+            <li><a href="/dashboard/leads/">/dashboard/leads/</a></li>
+            <li><a href="/dashboard/campaigns/">/dashboard/campaigns/</a></li>
+            <li><a href="/dashboard/ai-messages/">/dashboard/ai-messages/</a></li>
+            <li><a href="/dashboard/email-logs/">/dashboard/email-logs/</a></li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

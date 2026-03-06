@@ -1,0 +1,47 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}AI Messages{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>AI Messages</h2>
+    <p class="text-muted mb-0">View AI-generated subject lines and email bodies.</p>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div id="aiMessageList"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    redirectIfNoToken();
+
+    async function loadAIMessages() {
+        const res = await fetch("/api/ai/messages/", {headers: authHeaders()});
+        const result = await res.json();
+        const box = document.getElementById("aiMessageList");
+        box.innerHTML = "";
+
+        if (res.ok && result.data.length) {
+            result.data.forEach(item => {
+                box.innerHTML += `
+                    <div class="border rounded p-3 mb-3 bg-white">
+                        <div class="d-flex justify-content-between">
+                            <strong>${item.generated_subject || "No Subject"}</strong>
+                            <small>${item.message_type}</small>
+                        </div>
+                        <div class="text-muted small">${item.lead_email || ""} | ${item.campaign_name || ""}</div>
+                        <div class="small mt-2">${item.created_at}</div>
+                    </div>
+                `;
+            });
+        } else {
+            box.innerHTML = `<p class="mb-0">No AI messages found.</p>`;
+        }
+    }
+
+    loadAIMessages();
+</script>
+{% endblock %}

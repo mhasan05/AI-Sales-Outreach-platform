@@ -1,0 +1,146 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}Workspace{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Workspace</h2>
+    <p class="text-muted mb-0">Create or update your company workspace profile.</p>
+</div>
+
+<div id="messageBox"></div>
+
+<div class="card">
+    <div class="card-body">
+        <form id="workspaceForm">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Company Name</label>
+                    <input type="text" id="company_name" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Company Website</label>
+                    <input type="url" id="company_website" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Business Type</label>
+                    <input type="text" id="business_type" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Industry</label>
+                    <input type="text" id="industry" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Company Size</label>
+                    <input type="text" id="company_size" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Sender Name</label>
+                    <input type="text" id="sender_name" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Sender Email</label>
+                    <input type="email" id="sender_email" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Sender Position</label>
+                    <input type="text" id="sender_position" class="form-control">
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label">Business Description</label>
+                    <textarea id="business_description" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label">Product / Service Summary</label>
+                    <textarea id="product_service_summary" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label">Target Audience</label>
+                    <textarea id="target_audience" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label">Unique Selling Points</label>
+                    <textarea id="unique_selling_points" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Default Email Tone</label>
+                    <select id="default_email_tone" class="form-select">
+                        <option value="professional">Professional</option>
+                        <option value="friendly">Friendly</option>
+                        <option value="formal">Formal</option>
+                        <option value="direct">Direct</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn btn-dark mt-4" type="submit">Save Workspace</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    redirectIfNoToken();
+
+    let workspaceExists = false;
+
+    function showMessage(type, text) {
+        document.getElementById("messageBox").innerHTML = `<div class="alert alert-${type}">${text}</div>`;
+    }
+
+    async function loadWorkspace() {
+        const res = await fetch("/api/workspace/detail/", {headers: authHeaders()});
+        const result = await res.json();
+
+        if (res.ok) {
+            workspaceExists = true;
+            Object.keys(result.data).forEach(key => {
+                const el = document.getElementById(key);
+                if (el) {
+                    el.value = result.data[key] || "";
+                }
+            });
+        }
+    }
+
+    document.getElementById("workspaceForm").addEventListener("submit", async function(e) {
+        e.preventDefault();
+
+        const payload = {
+            company_name: document.getElementById("company_name").value,
+            company_website: document.getElementById("company_website").value,
+            business_type: document.getElementById("business_type").value,
+            industry: document.getElementById("industry").value,
+            company_size: document.getElementById("company_size").value,
+            sender_name: document.getElementById("sender_name").value,
+            sender_email: document.getElementById("sender_email").value,
+            sender_position: document.getElementById("sender_position").value,
+            business_description: document.getElementById("business_description").value,
+            product_service_summary: document.getElementById("product_service_summary").value,
+            target_audience: document.getElementById("target_audience").value,
+            unique_selling_points: document.getElementById("unique_selling_points").value,
+            default_email_tone: document.getElementById("default_email_tone").value
+        };
+
+        const url = workspaceExists ? "/api/workspace/update/" : "/api/workspace/create/";
+        const method = workspaceExists ? "PUT" : "POST";
+
+        const res = await fetch(url, {
+            method: method,
+            headers: authHeaders(),
+            body: JSON.stringify(payload)
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+            workspaceExists = true;
+            showMessage("success", result.message || "Workspace saved successfully.");
+        } else {
+            showMessage("danger", result.message || JSON.stringify(result.errors || result));
+        }
+    });
+
+    loadWorkspace();
+</script>
+{% endblock %}

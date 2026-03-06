@@ -1,0 +1,13 @@
+<div class="text-white mb-4">
+    <h4 class="mb-0">AI Outreach</h4>
+    <small class="text-secondary">MVP Dashboard</small>
+</div>
+
+<nav>
+    <a href="/dashboard/" class="{% if request.path == '/dashboard/' %}active{% endif %}">Dashboard</a>
+    <a href="/dashboard/workspace/" class="{% if request.path == '/dashboard/workspace/' %}active{% endif %}">Workspace</a>
+    <a href="/dashboard/leads/" class="{% if request.path == '/dashboard/leads/' %}active{% endif %}">Leads</a>
+    <a href="/dashboard/campaigns/" class="{% if request.path == '/dashboard/campaigns/' %}active{% endif %}">Campaigns</a>
+    <a href="/dashboard/ai-messages/" class="{% if request.path == '/dashboard/ai-messages/' %}active{% endif %}">AI Messages</a>
+    <a href="/dashboard/email-logs/" class="{% if request.path == '/dashboard/email-logs/' %}active{% endif %}">Email Logs</a>
+</nav>

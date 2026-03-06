@@ -1,0 +1,137 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}Campaigns{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center page-header">
+    <div>
+        <h2>Campaigns</h2>
+        <p class="text-muted mb-0">Manage outreach campaigns.</p>
+    </div>
+    <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#campaignModal">Create Campaign</button>
+</div>
+
+<div id="campaignMessageBox"></div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Daily Limit</th>
+                        <th>Total Leads</th>
+                        <th>Total Steps</th>
+                    </tr>
+                </thead>
+                <tbody id="campaignTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="campaignModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Create Campaign</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="campaignForm">
+                    <div class="row g-3">
+                        <div class="col-md-6"><input type="text" id="name" class="form-control" placeholder="Campaign Name" required></div>
+                        <div class="col-md-6">
+                            <select id="campaign_status" class="form-select">
+                                <option value="draft">Draft</option>
+                                <option value="active">Active</option>
+                                <option value="paused">Paused</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12"><textarea id="description" class="form-control" rows="2" placeholder="Description"></textarea></div>
+                        <div class="col-md-6"><input type="text" id="objective" class="form-control" placeholder="Objective"></div>
+                        <div class="col-md-6"><input type="number" id="daily_send_limit" class="form-control" placeholder="Daily Send Limit" value="50"></div>
+                        <div class="col-md-6"><input type="number" id="follow_up_gap_days" class="form-control" placeholder="Follow Up Gap Days" value="3"></div>
+                        <div class="col-md-6"><input type="date" id="start_date" class="form-control"></div>
+                        <div class="col-md-6"><input type="date" id="end_date" class="form-control"></div>
+                        <div class="col-md-12"><textarea id="target_audience" class="form-control" rows="2" placeholder="Target Audience"></textarea></div>
+                        <div class="col-md-12"><textarea id="offer_summary" class="form-control" rows="2" placeholder="Offer Summary"></textarea></div>
+                    </div>
+                    <button class="btn btn-dark mt-3" type="submit">Save Campaign</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    redirectIfNoToken();
+
+    function showCampaignMessage(type, text) {
+        document.getElementById("campaignMessageBox").innerHTML = `<div class="alert alert-${type}">${text}</div>`;
+    }
+
+    async function loadCampaigns() {
+        const res = await fetch("/api/campaigns/list/", {headers: authHeaders()});
+        const result = await res.json();
+        const tbody = document.getElementById("campaignTableBody");
+        tbody.innerHTML = "";
+
+        if (res.ok && result.data.length) {
+            result.data.forEach(item => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>${item.status}</td>
+                        <td>${item.daily_send_limit}</td>
+                        <td>${item.total_leads}</td>
+                        <td>${item.total_steps}</td>
+                    </tr>
+                `;
+            });
+        } else {
+            tbody.innerHTML = `<tr><td colspan="5">No campaigns found.</td></tr>`;
+        }
+    }
+
+    document.getElementById("campaignForm").addEventListener("submit", async function(e) {
+        e.preventDefault();
+
+        const payload = {
+            name: document.getElementById("name").value,
+            description: document.getElementById("description").value,
+            objective: document.getElementById("objective").value,
+            target_audience: document.getElementById("target_audience").value,
+            offer_summary: document.getElementById("offer_summary").value,
+            status: document.getElementById("campaign_status").value,
+            daily_send_limit: parseInt(document.getElementById("daily_send_limit").value || 50),
+            follow_up_gap_days: parseInt(document.getElementById("follow_up_gap_days").value || 3),
+            start_date: document.getElementById("start_date").value || null,
+            end_date: document.getElementById("end_date").value || null
+        };
+
+        const res = await fetch("/api/campaigns/create/", {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify(payload)
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+            showCampaignMessage("success", result.message || "Campaign created successfully.");
+            document.getElementById("campaignForm").reset();
+            bootstrap.Modal.getInstance(document.getElementById("campaignModal")).hide();
+            loadCampaigns();
+        } else {
+            showCampaignMessage("danger", result.message || JSON.stringify(result.errors || result));
+        }
+    });
+
+    loadCampaigns();
+</script>
+{% endblock %}
